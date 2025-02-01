@@ -1,0 +1,56 @@
+package university;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class Conn implements AutoCloseable {
+
+    // Database connection and statement instances
+     Connection c;
+     Statement s;
+
+    // Constructor to establish the connection
+    public Conn() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver"); // Load MySQL JDBC driver
+            c = DriverManager.getConnection("jdbc:mysql://localhost:3306/ums", "root", "SRM@9346s");
+            s = c.createStatement(); // Create a statement object for executing queries
+            System.out.println("Database connection established successfully.");
+        } catch (SQLException e) {
+            System.err.println("Connection Error: " + e.getMessage());
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Conn.class.getName()).log(Level.SEVERE, "JDBC Driver not found.", ex);
+        }
+    }
+
+    // Getter for the connection
+    public Connection getConnection() {
+        return c;
+    }
+
+    // Getter for the statement
+    public Statement getStatement() {
+        return s;
+    }
+
+    // AutoCloseable implementation for try-with-resources
+    @Override
+    public void close() {
+        try {
+            if (s != null && !s.isClosed()) {
+                s.close(); // Close the statement
+                System.out.println("Statement closed successfully.");
+            }
+            if (c != null && !c.isClosed()) {
+                c.close(); // Close the connection
+                System.out.println("Database connection closed successfully.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error closing resources: " + e.getMessage());
+        }
+    }
+}
